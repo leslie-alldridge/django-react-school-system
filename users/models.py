@@ -13,4 +13,4 @@ class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def ___str___(self):
-        return self user.username
+        return self.user.username

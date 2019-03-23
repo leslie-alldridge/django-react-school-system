@@ -59,16 +59,25 @@ export const authLogin = (username, password) => {
   };
 };
 
-export const authSignup = (username, email, password1, password2) => {
+export const authSignup = (
+  username,
+  email,
+  password1,
+  password2,
+  is_student
+) => {
   return dispatch => {
     dispatch(authStart());
+    const user = {
+      username,
+      email,
+      password1,
+      password2,
+      is_student,
+      is_teacher: !is_student
+    };
     axios
-      .post("http://127.0.0.1:8000/rest-auth/registration/", {
-        username: username,
-        email: email,
-        password1: password1,
-        password2: password2
-      })
+      .post("http://127.0.0.1:8000/rest-auth/registration/", user)
       .then(res => {
         const token = res.data.key;
         const expirationDate = new Date(new Date().getTime() + 3600 * 1000);

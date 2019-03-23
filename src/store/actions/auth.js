@@ -7,10 +7,10 @@ export const authStart = () => {
   };
 };
 
-export const authSuccess = token => {
+export const authSuccess = user => {
   return {
     type: actionTypes.AUTH_SUCCESS,
-    token: token
+    user
   };
 };
 
@@ -22,8 +22,7 @@ export const authFail = error => {
 };
 
 export const logout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("expirationDate");
+  localStorage.removeItem("user");
   return {
     type: actionTypes.AUTH_LOGOUT
   };
@@ -79,11 +78,16 @@ export const authSignup = (
     axios
       .post("http://127.0.0.1:8000/rest-auth/registration/", user)
       .then(res => {
-        const token = res.data.key;
-        const expirationDate = new Date(new Date().getTime() + 3600 * 1000);
-        localStorage.setItem("token", token);
-        localStorage.setItem("expirationDate", expirationDate);
-        dispatch(authSuccess(token));
+        const user = {
+          token: res.data.key,
+          username,
+          is_student,
+          is_teacher: !is_student,
+          expirationDate: new Date(new Date().getTime() + 3600 * 1000)
+        };
+
+        localStorage.setItem("user", JSON.stringify(user));
+        dispatch(authSuccess(user));
         dispatch(checkAuthTimeout(3600));
       })
       .catch(err => {
@@ -94,15 +98,15 @@ export const authSignup = (
 
 export const authCheckState = () => {
   return dispatch => {
-    const token = localStorage.getItem("token");
-    if (token === undefined) {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user === undefined || user === null) {
       dispatch(logout());
     } else {
-      const expirationDate = new Date(localStorage.getItem("expirationDate"));
+      const expirationDate = new Date(user.expirationDate);
       if (expirationDate <= new Date()) {
         dispatch(logout());
       } else {
-        dispatch(authSuccess(token));
+        dispatch(authSuccess(user));
         dispatch(
           checkAuthTimeout(
             (expirationDate.getTime() - new Date().getTime()) / 1000

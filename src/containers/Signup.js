@@ -5,6 +5,7 @@ import { NavLink } from "react-router-dom";
 import * as actions from "../store/actions/auth";
 
 const FormItem = Form.Item;
+const Option = Select.Option;
 
 class RegistrationForm extends React.Component {
   state = {
